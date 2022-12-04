@@ -8,19 +8,22 @@ class Orbit:
     def __init__(self,
                  h_p: float,
                  h_a: float,
-                 i: float,
+                 omega_0: float,
                  OMEGA_0: float,
+                 i: float,
                  planet: Planet):
         """
         :param h_p: Высота перигея
         :param h_a: Высота апогея
+        :param omega_0: Начальный аргумент перигея
+        :param OMEGA_0: Начальная долгота восходящего узла
         :param i: Угол наклона орбиты
-        :param OMEGA_0: Долгота восходящего узла
         :param planet: Планета орбиты
         """
         self.h_p = h_p
         self.h_a = h_a
         self.i = i
+        self.omega_0 = omega_0
         self.OMEGA_0 = OMEGA_0
         self.planet = planet
 
@@ -69,3 +72,13 @@ class Orbit:
     def n(self):
         # Среднее движение
         return (self.planet.Mu / self.a**3)**(1/2)
+
+    def OMEGA(self, t):
+        # Долгота восходящего узла
+        return self.OMEGA_0 + t / self.T_zv * self.d_OMEGA
+
+    def omega(self, t):
+        # Аргумент перигея
+        return self.omega_0 + t / self.T_zv * self.d_omega
+
+

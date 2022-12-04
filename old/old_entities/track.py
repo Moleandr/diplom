@@ -3,7 +3,7 @@ from numpy import sin, cos, arctan, pi
 
 from .orbit import Orbit
 from .point import Point
-from entities.math import factorial
+from ..utils.math import factorial
 
 
 class Track:
@@ -15,7 +15,7 @@ class Track:
                  orbit: Orbit):
         """
         :param t_0: Начальное время
-        :param omega_0: Начальный аргумент перигея
+        :param omega_0: Начальный аргумент перигея # TODO поправить
         :param d_t: Шаг расчёта по времени
         :param t_per: Время первого прохождения перигея
         :param orbit: Орбита
@@ -29,25 +29,23 @@ class Track:
     def points(self) -> Iterable[Point]:
         t_current = self.t_0
         while True:
-            yield Point(self.phi_gd(t_current), self.lambda_gd(t_current))
+            yield Point(self.phi_g(t_current), self.lambda_g(t_current))
             t_current += self.d_t
 
-    def OMEGA(self, t):
-        return self.orbit.OMEGA_0 + t / self.orbit.T_zv * self.orbit.d_OMEGA
-
-    def omega(self, t):
-        return self.omega_0 + t / self.orbit.T_zv * self.orbit.d_omega
-
     def D_t_sr(self, t):
+        # Среднее время с момента прохождения перигея до момента наблюдения
         return t - self.t_per
 
     def t_zv(self, t):
+        # Звёздное среднее время
         return 1.00273791 * self.D_t_sr(t)
 
     def M(self, t):
+        # Средняя аномалия
         return self.t_zv(t) * self.orbit.n
 
     def E(self, t):
+        # Эксцентрическая аномалия
         M = self.M(t)
         e = self.orbit.e
         return M + \
@@ -59,53 +57,60 @@ class Track:
                e**6 / (factorial(6) * 2**5) * (6**5 * sin(6*M) - 6 * 4**5 * sin(4*M) + 15 * 2**2 * sin(2*M))
 
     def sin_Theta(self, t):
+        # Синус истинной аномалии
         E = self.E(t)
         e = self.orbit.e
         return sin(E)/(1 - e*cos(E)) * (1 - e**2)**(1/2)
 
     def cos_Theta(self, t):
+        # Косинус истинной аномалии
         E = self.E(t)
         e = self.orbit.e
         return (cos(E) - e)/(1 - e * cos(E))
 
     def Theta(self, t):
-        # TODO Перепроверить взято из исходного кода EFKAN
-        sin_teta = self.sin_Theta(t)
-        cos_teta = self.cos_Theta(t)
-        theta = arctan((1 - cos_teta**2)**(1/2) / cos_teta)
+        # Истинная аномалия
+        sin_theta = self.sin_Theta(t)
+        cos_theta = self.cos_Theta(t)
+        theta = arctan((1 - cos_theta**2)**(1/2) / cos_theta)
 
-        if sin_teta > 0 and cos_teta < 0:
+        if sin_theta > 0 and cos_theta < 0:
             return theta + pi
-        if sin_teta < 0 and cos_teta < 0:
+        if sin_theta < 0 and cos_theta < 0:
             return pi - theta
-        if sin_teta < 0 and cos_teta > 0:
-            return 2 * pi - theta
+        if sin_theta < 0 and cos_theta > 0:
+            return 2*pi - theta
         return theta
 
     def u(self, t):
-        return self.Theta(t) + self.omega(t)
+        return self.Theta(t) + self.orbit.omega(t)
 
     def sin_phi(self, t):
+        # Синус широты
         return sin(self.orbit.i) * sin(self.u(t))
 
     def cos_phi(self, t):
+        # Косинус широты
         return (1 - self.sin_phi(t)**2)**(1/2)
 
-    def phi_ga(self, t):
+    def phi_g(self, t):
+        # Широта
         return arctan(self.sin_phi(t)/(1 - self.sin_phi(t)**2)**(1/2))
 
     def sin_lambda(self, t):
-        OMEGA = self.OMEGA(t)
+        # Синус долготы
+        OMEGA = self.orbit.OMEGA(t)
         u = self.u(t)
         return (sin(OMEGA) * cos(u) + cos(OMEGA) * cos(self.orbit.i) * sin(u))/self.cos_phi(t)
 
     def cos_lambda(self, t):
-        OMEGA = self.OMEGA(t)
+        # Косинус долготы
+        OMEGA = self.orbit.OMEGA(t)
         u = self.u(t)
         return (cos(OMEGA) * cos(u) - sin(OMEGA) * cos(self.orbit.i) * sin(u))/self.cos_phi(t)
 
-    # Что здесь происходит?
     def lambda_ga(self, t):
+        # Долгота без возмущений
         sin_lambda = self.sin_lambda(t)
         cos_lambda = self.cos_lambda(t)
 
@@ -119,11 +124,8 @@ class Track:
             return - arctan((1 - cos_lambda**2)**(1/2) / cos_lambda)
         return 0
 
-    def phi_gd(self, t):
-        return self.phi_ga(t)
-
-    # Зачем округление времени?
-    def lambda_gd(self, t):
+    def lambda_g(self, t):
+        # Долгота
         lambda_gds = self.lambda_ga(t) - \
                    self.orbit.planet.omega * (t - (24 * 3600) * int(t/(24 * 3600))) - \
                    self.orbit.d_OMEGA * t / self.orbit.T_zv
