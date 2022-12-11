@@ -1,17 +1,17 @@
 from functools import cached_property
+from typing import Optional
 from numpy import pi, cos, deg2rad
-
-from .planet import Planet
+from core.entities.planet import Planet
 
 
 class Orbit:
     def __init__(self,
                  h_p: float,
                  h_a: float,
-                 omega_0: float,
-                 OMEGA_0: float,
                  i: float,
-                 planet: Planet):
+                 planet: Optional[Planet] = None,
+                 omega_0: float = 0,
+                 OMEGA_0: float = 0):
         """
         :param h_p: Высота перигея
         :param h_a: Высота апогея
@@ -25,7 +25,7 @@ class Orbit:
         self.i = i
         self.omega_0 = omega_0
         self.OMEGA_0 = OMEGA_0
-        self.planet = planet
+        self.planet = planet or Planet()
 
     @cached_property
     def r_a(self):

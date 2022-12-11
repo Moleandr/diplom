@@ -11,13 +11,13 @@ class Point:
     def __repr__(self):
         return f"Point(phi={self.phi_}, lambda={self.lambda_})"
 
-    def convert_to_deg(self) -> "Point":
+    def to_deg(self) -> "Point":
         return Point(
             rad2deg(self.phi_),
             rad2deg(self.lambda_)
         )
 
-    def convert_to_rad(self) -> "Point":
+    def to_rad(self) -> "Point":
         return Point(
             deg2rad(self.phi_),
             deg2rad(self.lambda_)

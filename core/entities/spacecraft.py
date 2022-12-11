@@ -1,6 +1,8 @@
+from typing import List
 from .orbit import Orbit
+from .point import Point
 from .position import OrbitPosition
-from .view_area import ViewArea
+from .areas.spacecraft_view_area import SpacecraftViewArea
 
 
 class Spacecraft:
@@ -24,8 +26,8 @@ class Spacecraft:
             t=t
         )
 
-    def view_area(self, t) -> ViewArea:
-        return ViewArea(
+    def view_area(self, t) -> SpacecraftViewArea:
+        return SpacecraftViewArea(
             phi_=self.position(t).phi_,
             lambda_=self.position(t).lambda_,
             R=self.orbit.planet.R,
