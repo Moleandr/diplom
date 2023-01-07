@@ -3,7 +3,7 @@ from numpy import sin, cos, arctan, pi
 
 from .orbit import Orbit
 from .point import Point
-from ..utils.math import factorial
+from core.utils.math import factorial
 
 
 class Track:

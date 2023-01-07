@@ -1,0 +1,56 @@
+{% macro tabs(name, fields) -%}
+    <div class="ui grid">
+        <div class="four wide column">
+            <button class="green fluid mini ui button" id="{{name}}-add">Добавить</button>
+            <div class="ui vertical fluid tabular menu" id="{{name}}-tab-bar">
+            </div>
+        </div>
+        <div class="twelve wide column" id="{{name}}-tab-content">
+        </div>
+    </div>
+
+    <div class="ui basic modal" id="{{name}}-modal">
+        <div class="ui centered grid">
+            <div class="center aligned eight wide column">
+                <div class="ui fluid input">
+                  <input type="text" id={{name}}-name value="{{name}}-">
+                </div>
+            </div>
+            <div class="column">
+                <div class="actions">
+                    <button class="ui approve green button" id="{{name}}-agree-adding">Добавить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $("#{{name}}-add").on('click', function () {
+            $('#{{name}}-modal')
+                .modal('show')
+            ;
+        })
+    </script>
+
+    <script>
+        $('#{{name}}-agree-adding').on('click', function () {
+            let name=$('#{{name}}-name').val()
+
+            let existing_names = Array()
+            $('#{{name}}-tab-content').children().toArray().forEach(elem => existing_names.push(elem.id))
+
+            if (existing_names.includes(name)) {
+                return false
+            }
+
+            $('#{{name}}-tab-bar').append(
+                generateTab(name)
+            )
+            $('#{{name}}-tab-content').append(
+                generateTabContent(name, {{fields}})
+            )
+            $('.menu .item').tab()
+        })
+    </script>
+
+{%- endmacro %}

@@ -81,6 +81,6 @@ class SurfaceArea:
         :param point: Точка с координатами объекта
         :return:
         """
-        return arccos(sin(self.central_point.phi_) * sin(point.phi_) +
-                      cos(self.central_point.phi_) * cos(point.phi_) *
-                      cos(point.lambda_ - self.central_point.lambda_)) < self.alpha
+        return bool(arccos(sin(self.central_point.phi_) * sin(point.phi_) +
+                           cos(self.central_point.phi_) * cos(point.phi_) *
+                           cos(point.lambda_ - self.central_point.lambda_)) < self.alpha)
