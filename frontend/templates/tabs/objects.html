@@ -1,0 +1,14 @@
+<div class="ui grid">
+    <div class="ten wide column">
+        {% import 'macros/tabs.html' as macros %}
+        {{ macros.tabs(
+            name="object",
+            fields=[
+                {'text': 'Широта, град', 'name': 'latitude', 'type': 'number', 'value': '0'},
+                {'text': 'Долгота, град', 'name': 'longitude', 'type': 'number', 'value': '0'},
+            ] | safe
+        ) }}
+    </div>
+    <div class="six wide column">
+    </div>
+</div>
