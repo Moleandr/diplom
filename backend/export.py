@@ -1,3 +1,5 @@
+from typing import List
+
 import eel
 from numpy import deg2rad
 
@@ -65,14 +67,23 @@ def set_settings(settings):
     eel.setPeriodicitySettings([{'name': f'{el[0]}|{el[1]}'} for el in settings])
 
 
+def prepare_satellites(data) -> List[Satellite]:
+    satellites_data = [data_factory(el, SatelliteData) for el in data['satellites']]
+    satellites = [satellite_factory(data) for data in satellites_data]
+    return satellites
+
+
+def prepare_objects(data) -> List[ObservationObject]:
+    objects_data = [data_factory(el, ObjectData) for el in data['objects']]
+    objects = [object_factory(data) for data in objects_data]
+    return objects
+
+
 @eel.expose
 def simulate(data):
     # prepare data
-    satellites_data = [data_factory(el, SatelliteData) for el in data['satellites']]
-    satellites = [satellite_factory(data) for data in satellites_data]
-
-    objects_data = [data_factory(el, ObjectData) for el in data['objects']]
-    objects = [object_factory(data) for data in objects_data]
+    satellites = prepare_satellites(data)
+    objects = prepare_objects(data)
 
     start = int(data['start_time'])
     end = int(data['end_time'])
@@ -113,3 +124,26 @@ def simulate(data):
 @eel.expose
 def get_last_simulate():
     return last_simulation
+
+
+@eel.expose
+def map_simulation(data, t):
+    satellites = prepare_satellites(data)
+    objects = prepare_objects(data)
+
+    satellites_points = [satellite.position(t).point.to_deg() for satellite in satellites]
+    satellites_areas = [satellite.view_area(t).get_border(0.1) for satellite in satellites]
+    illuminated_area = IlluminatedArea(t).get_border(0.1)
+
+    data = []
+    data += [{'lon': [el.to_deg().lambda_], 'lat': [el.to_deg().phi_]} for el in objects]
+    data += [{'lon': [point.lambda_], 'lat': [point.phi_]} for point in satellites_points]
+    data += [{
+        'lon': [point.to_deg().lambda_ for point in area],
+        'lat': [point.to_deg().phi_ for point in area]
+    } for area in satellites_areas]
+    data += [{
+        'lon': [point.to_deg().lambda_ for point in illuminated_area],
+        'lat': [point.to_deg().phi_ for point in illuminated_area]
+    }]
+    return data

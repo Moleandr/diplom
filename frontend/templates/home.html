@@ -3,14 +3,14 @@
 {% block body %}
 <div class="ui">
     <div class="ui secondary pointing menu">
-<!--        <a class="active item" data-tab="map">Map</a>-->
         <a class="active item" data-tab="satellite">Satellites</a>
         <a class="item" data-tab="objects">Observation objects</a>
         <a class="item" data-tab="simulation">Simulation</a>
         <a class="item" data-tab="periodicity">Periodicity</a>
+        <a class="item" data-tab="map">Map</a>
     </div>
     <div class="ui tab segment" data-tab="map">
-        {% include 'map.html' %}
+        {% include 'tabs/map.html' %}
     </div>
     <div class="ui active tab segment" data-tab="satellite">
         {% include 'tabs/satellites.html' %}

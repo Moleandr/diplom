@@ -1,0 +1,53 @@
+<div class="ui grid">
+    <div class="row">
+        <div class="column">
+            <div id="map_graph"></div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="one wide column">
+            <div class="ui icon buttons">
+                <button class="ui green button" id="start_map_simulation">
+                    <i class="play icon"></i>
+                </button>
+            </div>
+        </div>
+        <div class="five wide column">
+            <div class="ui right labeled input fluid">
+              <label for="map_start_time" class="ui label">Start</label>
+              <input type="text" id="map_start_time" value="0">
+            </div>
+        </div>
+        <div class="five wide column">
+            <div class="ui right labeled input fluid">
+              <label for="map_end_time" class="ui label">Stop</label>
+              <input type="text" id="map_end_time" value="10000">
+            </div>
+        </div>
+        <div class="five wide column">
+            <div class="ui right labeled input fluid">
+              <label for="map_step" class="ui label">Step</label>
+              <input type="text" id="map_step" value="100">
+            </div>
+        </div>
+<!--        <button class="ui fluid green button" id="next">Моделирование</button>-->
+    </div>
+</div>
+<script>
+    generateEmptyMap()
+</script>
+<script>
+    $("#start_map_simulation").on('click', async function () {
+        let data = {}
+        data['satellites'] = getForms('#satellite-tab-content form')
+        data['objects'] = getForms('#object-tab-content form')
+        generateMap(data)
+        let start = Number($('#map_start_time').val())
+        let end = Number($('#map_end_time').val())
+        let step = Number($('#map_step').val())
+
+        for (let i = start; i <= end; i+=step) {
+            updateMap(data, i)
+        }
+    })
+</script>
