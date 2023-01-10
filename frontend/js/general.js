@@ -62,14 +62,14 @@ function setPeriodicitySettings (settings) {
     $('.ui.checkbox').checkbox()
 }
 
-async function PeriodicityIndicatorGraph() {
+async function periodicityIndicatorBarGraph(metric) {
     let keys = $('#periodicity_settings .checkbox.checked input').toArray()
         .map((el) => el.name.split("|"))
     let values = await eel.get_last_simulate()()
     let data = [{'x': [], 'y': [], 'type': 'bar'}]
     keys.forEach(function(key) {
         data[0]['x'].push(`${key[0]}|${key[1]}`)
-        data[0]['y'].push(values[key[0]][key[1]]['periodicity_indicator'])
+        data[0]['y'].push(values[key[0]][key[1]][metric])
     });
     Plotly.newPlot('periodicity_graph', data);
 }

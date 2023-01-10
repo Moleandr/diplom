@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
 from typing import Dict, Union
 
+import numpy as np
+
 
 @dataclass
 class Intersections:
@@ -10,6 +12,44 @@ class Intersections:
     @property
     def count(self):
         return len(self.timestamps)
+
+    @property
+    def periodicity_indicators(self):
+        return [self.timestamps[i+1] - self.timestamps[i] for i in range(len(self.timestamps) - 1)]
+
+    @property
+    def mean_periodicity_indicator(self):
+        if self.periodicity_indicators:
+            return float(np.mean(self.periodicity_indicators))
+        else:
+            return None
+
+    @property
+    def max_periodicity_indicator(self):
+        if self.periodicity_indicators:
+            return float(np.max(self.periodicity_indicators))
+        else:
+            return None
+
+
+    @property
+    def min_periodicity_indicator(self):
+        if self.periodicity_indicators:
+            return float(np.min(self.periodicity_indicators))
+        else:
+            return None
+
+    @property
+    def std_periodicity_indicator(self):
+        if self.periodicity_indicators:
+            return float(np.std(self.periodicity_indicators))
+        else:
+            return None
+
+    def __add__(self, otherIntersections: "Intersections"):
+        sum_intersection = Intersections()
+        sum_intersection.timestamps = self.timestamps + otherIntersections.timestamps
+        return sum_intersection
 
 
 class IntersectionTracker:

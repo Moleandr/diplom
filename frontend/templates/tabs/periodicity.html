@@ -1,7 +1,11 @@
 <div class="ui grid">
     <div class="five wide column" id="periodicity_settings">
         <select class="ui dropdown fluid" id="graph_type">
-            <option value="Periodicity indicator">Periodicity indicator</option>
+            <option value="Mean Periodicity indicator">Mean Periodicity indicator</option>
+            <option value="Max Periodicity indicator">Max Periodicity indicator</option>
+            <option value="Min Periodicity indicator">Min Periodicity indicator</option>
+            <option value="Std Periodicity indicator">Std Periodicity indicator</option>
+            <option value="Hits count">Hits count</option>
             <option value="Hits timestamp">Hits timestamp</option>
         </select>
         <div class="ui divider"></div>
@@ -17,7 +21,11 @@
 <script>
     $("#show_periodicity_graph").on('click', function () {
         let graph_type = $('#graph_type').val()
-        if (graph_type === 'Periodicity indicator') PeriodicityIndicatorGraph()
+        if (graph_type === 'Mean Periodicity indicator') periodicityIndicatorBarGraph('mean_periodicity_indicator')
+        if (graph_type === 'Max Periodicity indicator') periodicityIndicatorBarGraph('max_periodicity_indicator')
+        if (graph_type === 'Min Periodicity indicator') periodicityIndicatorBarGraph('min_periodicity_indicator')
+        if (graph_type === 'Std Periodicity indicator') periodicityIndicatorBarGraph('std_periodicity_indicator')
+        if (graph_type === 'Hits count') periodicityIndicatorBarGraph('count')
         if (graph_type === 'Hits timestamp') hitsTimestampGraph()
     })
 </script>

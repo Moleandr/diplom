@@ -104,13 +104,29 @@ def simulate(data):
                     timestamps=t
                 )
 
+    # add clusters
+    for satellite in satellites:
+        for object_ in objects:
+            if satellite.cluster:
+                if tracker.intersections_store.get((satellite.cluster, object_.name)):
+                    tracker.intersections_store[(satellite.cluster, object_.name)] += \
+                        tracker.intersections_store[(satellite.name, object_.name)]
+                else:
+                    tracker.intersections_store[(satellite.cluster, object_.name)] = \
+                        tracker.intersections_store[(satellite.name, object_.name)]
+
     # serialize result
     result = {}
     for key, intersections in tracker.intersections_store.items():
         result[key[0]] = result[key[0]] if result.get(key[0]) else {}
         result[key[0]][key[1]] = {
             'timestamps': intersections.timestamps,
-            'periodicity_indicator': (end-start) / intersections.count
+            'periodicity_indicators': intersections.periodicity_indicators,
+            'count': intersections.count,
+            'mean_periodicity_indicator': intersections.mean_periodicity_indicator,
+            'max_periodicity_indicator': intersections.max_periodicity_indicator,
+            'min_periodicity_indicator': intersections.min_periodicity_indicator,
+            'std_periodicity_indicator': intersections.std_periodicity_indicator,
         }
 
     global last_simulation
