@@ -4,7 +4,7 @@ function generateTab(name){
 
 function generateTabContent(name, fields) {
     fields.unshift(
-        {'text': 'Наименование', 'name': 'name', 'value': name, 'disabled': true, 'type': 'text'},
+        {'text': 'Name', 'name': 'name', 'value': name, 'disabled': true, 'type': 'text'},
     )
     return `
     <div class="ui tab segment" data-tab="${name}" id="${name}">
@@ -75,7 +75,7 @@ async function periodicityIndicatorBarGraph(metric) {
 }
 
 async function hitsTimestampGraph() {
-    let keys = $('#periodicity_settings .checkbox.checked input').toArray()
+    let keys = $('#periodicity_settings .checkbox input').toArray()
         .map((el) => el.name.split("|"))
     let values = await eel.get_last_simulate()()
     let data = []
@@ -90,9 +90,16 @@ async function hitsTimestampGraph() {
     });
     let layout = {
         showlegend: true,
-	    legend: {"orientation": "h"}
+	    legend: {"orientation": "h"},
+        margin: {r: 0, t: 0, b: 0, l: 0},
+        xaxis: {
+            showgrid: false,
+            zeroline: false,
+            showline: false,
+        },
+        height: 300,
     };
-    Plotly.newPlot('periodicity_graph', data, layout);
+    Plotly.newPlot('hits_graph', data, layout);
 }
 
 async function simulate () {
@@ -103,4 +110,5 @@ async function simulate () {
     data['end_time'] = $('#end_time').val()
     data['step'] = $('#step').val()
     console.log(await eel.simulate(data)())
+    await hitsTimestampGraph()
 }

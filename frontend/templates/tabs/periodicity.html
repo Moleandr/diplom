@@ -6,7 +6,6 @@
             <option value="Min Periodicity indicator">Min Periodicity indicator</option>
             <option value="Std Periodicity indicator">Std Periodicity indicator</option>
             <option value="Hits count">Hits count</option>
-            <option value="Hits timestamp">Hits timestamp</option>
         </select>
         <div class="ui divider"></div>
         <button class="ui fluid button" id="show_periodicity_graph">Show</button>
@@ -26,6 +25,5 @@
         if (graph_type === 'Min Periodicity indicator') periodicityIndicatorBarGraph('min_periodicity_indicator')
         if (graph_type === 'Std Periodicity indicator') periodicityIndicatorBarGraph('std_periodicity_indicator')
         if (graph_type === 'Hits count') periodicityIndicatorBarGraph('count')
-        if (graph_type === 'Hits timestamp') hitsTimestampGraph()
     })
 </script>
