@@ -71,8 +71,28 @@ async function PeriodicityIndicatorGraph() {
         data[0]['x'].push(`${key[0]}|${key[1]}`)
         data[0]['y'].push(values[key[0]][key[1]]['periodicity_indicator'])
     });
-    let GraphDiv = $('#periodicity_graph');
     Plotly.newPlot('periodicity_graph', data);
+}
+
+async function hitsTimestampGraph() {
+    let keys = $('#periodicity_settings .checkbox.checked input').toArray()
+        .map((el) => el.name.split("|"))
+    let values = await eel.get_last_simulate()()
+    let data = []
+    keys.forEach(function(key) {
+        console.log(values[key[0]][key[1]]['timestamps'])
+        data.push({
+            'x': values[key[0]][key[1]]['timestamps'],
+            'y': values[key[0]][key[1]]['timestamps'].map(() => 0),
+            name: `${key[0]}|${key[1]}`,
+            mode: 'markers',
+            type: 'scatter'})
+    });
+    let layout = {
+        showlegend: true,
+	    legend: {"orientation": "h"}
+    };
+    Plotly.newPlot('periodicity_graph', data, layout);
 }
 
 async function simulate () {

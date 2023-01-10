@@ -1,9 +1,8 @@
 <div class="ui grid">
     <div class="five wide column" id="periodicity_settings">
-        <select class="ui dropdown fluid">
-            <option value="">Research</option>
-            <option value="PeriodicityIndicator">Periodicity indicator</option>
-            <option value="test">test</option>
+        <select class="ui dropdown fluid" id="graph_type">
+            <option value="Periodicity indicator">Periodicity indicator</option>
+            <option value="Hits timestamp">Hits timestamp</option>
         </select>
         <div class="ui divider"></div>
         <button class="ui fluid button" id="show_periodicity_graph">Show</button>
@@ -17,6 +16,8 @@
 
 <script>
     $("#show_periodicity_graph").on('click', function () {
-        PeriodicityIndicatorGraph()
+        let graph_type = $('#graph_type').val()
+        if (graph_type === 'Periodicity indicator') PeriodicityIndicatorGraph()
+        if (graph_type === 'Hits timestamp') hitsTimestampGraph()
     })
 </script>
