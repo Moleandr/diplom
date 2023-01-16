@@ -42,6 +42,7 @@
         let data = {}
         data['satellites'] = getForms('#satellite-tab-content form')
         data['objects'] = getForms('#object-tab-content form')
+        data['recipients'] = getForms('#recipient-tab-content form')
         generateMap(data)
         let start = Number($('#map_start_time').val())
         let end = Number($('#map_end_time').val())

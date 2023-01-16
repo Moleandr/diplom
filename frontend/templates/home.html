@@ -5,8 +5,10 @@
     <div class="ui secondary pointing menu">
         <a class="active item" data-tab="satellite">Спутники</a>
         <a class="item" data-tab="objects">Объекты наблюдения</a>
+        <a class="item" data-tab="recipients">Пункты приёма</a>
         <a class="item" data-tab="simulation">Моделирование</a>
         <a class="item" data-tab="periodicity">Периодичность</a>
+        <a class="item" data-tab="efficiency">Оперативность</a>
         <a class="item" data-tab="map">Карта</a>
     </div>
     <div class="ui tab segment" data-tab="map">
@@ -18,11 +20,17 @@
     <div class="ui tab segment" data-tab="objects">
         {% include 'tabs/objects.html' %}
     </div>
+    <div class="ui tab segment" data-tab="recipients">
+        {% include 'tabs/recipients.html' %}
+    </div>
     <div class="ui tab segment" data-tab="simulation">
         {% include 'tabs/simulation.html' %}
     </div>
     <div class="ui tab segment" data-tab="periodicity">
         {% include 'tabs/periodicity.html' %}
+    </div>
+    <div class="ui tab segment" data-tab="efficiency">
+        {% include 'tabs/efficiency.html' %}
     </div>
 </div>
 

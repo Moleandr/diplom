@@ -72,6 +72,19 @@ function generateMap(data) {
                 width: 2,
             }
         })
+
+        for (let j=0; j < data['recipients'].length; j++){
+            graphData.push({
+            type:'scattergeo',
+            mode: 'lines',
+            lon: [0],
+            lat: [0],
+            name: `Зона радиовидимости(${data['satellites'][i][0]['value']}-${data['recipients'][j][0]['value']})`,
+            line: {
+                width: 2,
+                }
+            })
+        }
     }
 
 

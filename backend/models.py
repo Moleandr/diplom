@@ -24,3 +24,9 @@ class ObjectData(BaseModel):
     name: str
     latitude: float = 0
     longitude: float = 0
+
+
+class RecipientData(BaseModel):
+    name: str
+    latitude: float = 0
+    longitude: float = 0

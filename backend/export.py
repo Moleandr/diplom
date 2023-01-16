@@ -4,9 +4,9 @@ import eel
 from numpy import deg2rad
 
 from .models import data_factory
-from .models import SatelliteData, ObjectData
+from .models import SatelliteData, ObjectData, RecipientData
 from .services.intersection import IntersectionTracker
-from .core import Spacecraft, Orbit, Point, IlluminatedArea
+from .core import Spacecraft, Orbit, Point, RecipientArea
 
 
 last_simulation = None
@@ -29,6 +29,15 @@ class ObservationObject(Point):
 
     def __repr__(self):
         return f'ObservationObject({self.name})'
+
+
+class Recipient(Point):
+    def __init__(self, name, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.name = name
+
+    def __repr__(self):
+        return f'Recipient({self.name})'
 
 
 def satellite_factory(data: SatelliteData) -> Satellite:
@@ -57,6 +66,14 @@ def object_factory(data: ObjectData) -> ObservationObject:
     ).to_rad()
 
 
+def recipient_factory(data: RecipientData) -> Recipient:
+    return Recipient(
+        name=data.name,
+        phi_=data.latitude,
+        lambda_=data.longitude
+    ).to_rad()
+
+
 def set_progress(time, start_time, end_time, step):
     percent = (end_time - start_time) / 100
     progress = time // percent
@@ -64,8 +81,8 @@ def set_progress(time, start_time, end_time, step):
         eel.setProgress(progress + 1)
 
 
-def set_settings(settings):
-    eel.setPeriodicitySettings([{'name': f'{el[0]}|{el[1]}'} for el in settings])
+def set_settings(name, settings):
+    eel.setSettings(name, [{'name': f'{el[0]}|{el[1]}'} for el in settings])
 
 
 def prepare_satellites(data) -> List[Satellite]:
@@ -80,17 +97,25 @@ def prepare_objects(data) -> List[ObservationObject]:
     return objects
 
 
+def prepare_recipient(data) -> List[Recipient]:
+    recipients_data = [data_factory(el, RecipientData) for el in data['recipients']]
+    recipients = [recipient_factory(data) for data in recipients_data]
+    return recipients
+
+
 @eel.expose
 def simulate(data):
     # prepare data
     satellites = prepare_satellites(data)
     objects = prepare_objects(data)
+    recipients = prepare_recipient(data)
 
     start = int(data['start_time'])
     end = int(data['end_time'])
     step = int(data['step'])
 
-    tracker = IntersectionTracker()
+    periodicity_tracker = IntersectionTracker()
+    efficiency_tracker = IntersectionTracker()
 
     # simulate
     for t in range(start, end, step):
@@ -98,10 +123,20 @@ def simulate(data):
 
         for satellite in satellites:
             for object_ in objects:
-                tracker.push(
+                periodicity_tracker.push(
                     key=(satellite.name, object_.name),
                     condition=(satellite.view_area(t).check_collision(object_)
                                and satellite.illuminated_area(t).check_collision(object_)),
+                    timestamps=t
+                )
+
+        for satellite in satellites:
+            for recipient in recipients:
+                efficiency_tracker.push(
+                    key=(satellite.name, recipient.name),
+                    condition=(satellite.recipient_area(recipient, t).check_collision(
+                        satellite.position(t).point
+                    )),
                     timestamps=t
                 )
 
@@ -109,31 +144,50 @@ def simulate(data):
     for satellite in satellites:
         for object_ in objects:
             if satellite.cluster:
-                if tracker.intersections_store.get((satellite.cluster, object_.name)):
-                    tracker.intersections_store[(satellite.cluster, object_.name)] += \
-                        tracker.intersections_store[(satellite.name, object_.name)]
+                if periodicity_tracker.intersections_store.get((satellite.cluster, object_.name)):
+                    periodicity_tracker.intersections_store[(satellite.cluster, object_.name)] += \
+                        periodicity_tracker.intersections_store[(satellite.name, object_.name)]
                 else:
-                    tracker.intersections_store[(satellite.cluster, object_.name)] = \
-                        tracker.intersections_store[(satellite.name, object_.name)]
+                    periodicity_tracker.intersections_store[(satellite.cluster, object_.name)] = \
+                        periodicity_tracker.intersections_store[(satellite.name, object_.name)]
 
     # serialize result
-    result = {}
-    for key, intersections in tracker.intersections_store.items():
-        result[key[0]] = result[key[0]] if result.get(key[0]) else {}
-        result[key[0]][key[1]] = {
+    result = {
+        'periodicity': {},
+        'efficiency': {}
+    }
+
+    for key, intersections in periodicity_tracker.intersections_store.items():
+        result['periodicity'][key[0]] = result['periodicity'][key[0]] \
+            if result['periodicity'].get(key[0]) else {}
+        result['periodicity'][key[0]][key[1]] = {
             'timestamps': intersections.timestamps,
-            'periodicity_indicators': intersections.periodicity_indicators,
+            'indicators': intersections.indicators,
             'count': intersections.count,
-            'mean_periodicity_indicator': intersections.mean_periodicity_indicator,
-            'max_periodicity_indicator': intersections.max_periodicity_indicator,
-            'min_periodicity_indicator': intersections.min_periodicity_indicator,
-            'std_periodicity_indicator': intersections.std_periodicity_indicator,
+            'mean_indicator': intersections.mean_indicator,
+            'max_indicator': intersections.max_indicator,
+            'min_indicator': intersections.min_indicator,
+            'std_indicator': intersections.std_indicator,
+        }
+
+    for key, intersections in efficiency_tracker.intersections_store.items():
+        result['efficiency'][key[0]] = result['efficiency'][key[0]] \
+            if result['efficiency'].get(key[0]) else {}
+        result['efficiency'][key[0]][key[1]] = {
+            'timestamps': intersections.timestamps,
+            'indicators': intersections.indicators,
+            'count': intersections.count,
+            'mean_indicator': intersections.mean_indicator,
+            'max_indicator': intersections.max_indicator,
+            'min_indicator': intersections.min_indicator,
+            'std_indicator': intersections.std_indicator,
         }
 
     global last_simulation
     last_simulation = result
 
-    set_settings(tracker.intersections_store.keys())
+    set_settings('periodicity', periodicity_tracker.intersections_store.keys())
+    set_settings('efficiency', efficiency_tracker.intersections_store.keys())
 
     return result
 
@@ -147,34 +201,43 @@ def get_last_simulate():
 def map_simulation(data, t):
     satellites = prepare_satellites(data)
     objects = prepare_objects(data)
-
-    satellites_points = [satellite.position(t).point.to_deg() for satellite in satellites]
-    satellites_view_areas = [satellite.view_area(t).get_border(0.1) for satellite in satellites]
-    satellites_illuminated_areas = \
-        [satellite.illuminated_area(t).get_border(0.1) for satellite in satellites]
+    recipients = prepare_recipient(data)
 
     data = []
 
     # observation objects
-    for i in range(len(objects)):
+    for object_ in objects:
         data.append({
-            'lon': [objects[i].to_deg().lambda_],
-            'lat': [objects[i].to_deg().phi_]
+            'lon': [object_.to_deg().lambda_],
+            'lat': [object_.to_deg().phi_]
         })
 
     # satellites
-    for i in range(len(satellites_points)):
+    for satellite in satellites:
+
+        satellite_point = satellite.position(t).point.to_deg()
         data.append({
-            'lon': [satellites_points[i].lambda_],
-            'lat': [satellites_points[i].phi_]
+            'lon': [satellite_point.lambda_],
+            'lat': [satellite_point.phi_]
         })
+
+        satellites_view_area = satellite.view_area(t).get_border(0.1)
         data.append({
-            'lon': [point.to_deg().lambda_ for point in satellites_view_areas[i]],
-            'lat': [point.to_deg().phi_ for point in satellites_view_areas[i]]
+            'lon': [point.to_deg().lambda_ for point in satellites_view_area],
+            'lat': [point.to_deg().phi_ for point in satellites_view_area]
         })
+
+        satellites_illuminated_area = satellite.illuminated_area(t).get_border(0.1)
         data.append({
-            'lon': [point.to_deg().lambda_ for point in satellites_illuminated_areas[i]],
-            'lat': [point.to_deg().phi_ for point in satellites_illuminated_areas[i]]
+            'lon': [point.to_deg().lambda_ for point in satellites_illuminated_area],
+            'lat': [point.to_deg().phi_ for point in satellites_illuminated_area]
         })
+
+        for recipient in recipients:
+            recipient_area = satellite.recipient_area(recipient, t).get_border(0.1)
+            data.append({
+                'lon': [point.to_deg().lambda_ for point in recipient_area],
+                'lat': [point.to_deg().phi_ for point in recipient_area]
+            })
 
     return data

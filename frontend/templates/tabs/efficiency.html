@@ -1,0 +1,29 @@
+<div class="ui grid">
+    <div class="five wide column" id="efficiency_settings">
+        <select class="ui dropdown fluid" id="efficiency_graph_type">
+            <option value="Mean Efficiency indicator">Средняя оперативность</option>
+            <option value="Max Efficiency indicator">Максимальная оперативность</option>
+            <option value="Min Efficiency indicator">Минимальная оперативность</option>
+            <option value="Std Efficiency indicator">Среднеквадратичное отклонение оперативности</option>
+            <option value="Hits count">Количество сеансов связи</option>
+        </select>
+        <div class="ui divider"></div>
+        <button class="ui fluid green button" id="show_efficiency_graph">Показать</button>
+    </div>
+    <div class="eleven wide column">
+        <div class="ui segment">
+            <div id='efficiency_graph'></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $("#show_efficiency_graph").on('click', function () {
+        let graph_type = $('#efficiency_graph_type').val()
+        if (graph_type === 'Mean Efficiency indicator') IndicatorBarGraph('efficiency', 'mean_indicator')
+        if (graph_type === 'Max Efficiency indicator') IndicatorBarGraph('efficiency', 'max_indicator')
+        if (graph_type === 'Min Efficiency indicator') IndicatorBarGraph('efficiency', 'min_indicator')
+        if (graph_type === 'Std Efficiency indicator') IndicatorBarGraph('efficiency', 'std_indicator')
+        if (graph_type === 'Hits count') IndicatorBarGraph('efficiency', 'count')
+    })
+</script>

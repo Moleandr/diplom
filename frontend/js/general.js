@@ -55,15 +55,15 @@ function setProgress (percent) {
     $('.progress .label').text(`${percent}%`)
 }
 
-eel.expose(setPeriodicitySettings);
-function setPeriodicitySettings (settings) {
-    $('#periodicity_settings .segment').remove()
-    $('#periodicity_settings').prepend(generateCheckboxForm(settings))
+eel.expose(setSettings);
+function setSettings (name, settings) {
+    $(`#${name}_settings .segment`).remove()
+    $(`#${name}_settings`).prepend(generateCheckboxForm(settings))
     $('.ui.checkbox').checkbox()
 }
 
-async function periodicityIndicatorBarGraph(metric) {
-    let keys = $('#periodicity_settings .checkbox.checked input').toArray()
+async function IndicatorBarGraph(name, metric) {
+    let keys = $(`#${name}_settings .checkbox.checked input`).toArray()
         .map((el) => el.name.split("|"))
     let values = await eel.get_last_simulate()()
     let data = [{
@@ -74,22 +74,22 @@ async function periodicityIndicatorBarGraph(metric) {
     }]
     keys.forEach(function(key) {
         data[0]['x'].push(`${key[0]}|${key[1]}`)
-        data[0]['y'].push(values[key[0]][key[1]][metric])
-        data[0]['text'].push(values[key[0]][key[1]][metric])
+        data[0]['y'].push(values[name][key[0]][key[1]][metric])
+        data[0]['text'].push(values[name][key[0]][key[1]][metric])
     });
-    Plotly.newPlot('periodicity_graph', data);
+    Plotly.newPlot(`${name}_graph`, data);
 }
 
-async function hitsTimestampGraph() {
-    let keys = $('#periodicity_settings .checkbox input').toArray()
+async function hitsTimestampGraph(name) {
+    let keys = $(`#${name}_settings .checkbox input`).toArray()
         .map((el) => el.name.split("|"))
     let values = await eel.get_last_simulate()()
     let data = []
     keys.forEach(function(key) {
-        console.log(values[key[0]][key[1]]['timestamps'])
+        console.log(values[name][key[0]][key[1]]['timestamps'])
         data.push({
-            'x': values[key[0]][key[1]]['timestamps'],
-            'y': values[key[0]][key[1]]['timestamps'].map(() => 0),
+            'x': values[name][key[0]][key[1]]['timestamps'],
+            'y': values[name][key[0]][key[1]]['timestamps'].map(() => 0),
             name: `${key[0]}|${key[1]}`,
             mode: 'markers',
             type: 'scatter'})
@@ -105,16 +105,18 @@ async function hitsTimestampGraph() {
         },
         height: 300,
     };
-    Plotly.newPlot('hits_graph', data, layout);
+    Plotly.newPlot(`${name}_hits_graph`, data, layout);
 }
 
 async function simulate () {
     let data = {}
     data['satellites'] = getForms('#satellite-tab-content form')
     data['objects'] = getForms('#object-tab-content form')
+    data['recipients'] = getForms('#recipient-tab-content form')
     data['start_time'] = $('#start_time').val()
     data['end_time'] = $('#end_time').val()
     data['step'] = $('#step').val()
     console.log(await eel.simulate(data)())
-    await hitsTimestampGraph()
+    await hitsTimestampGraph('periodicity')
+    await hitsTimestampGraph('efficiency')
 }

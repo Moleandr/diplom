@@ -2,6 +2,7 @@ from .orbit import Orbit
 from .position import OrbitPosition
 from .areas.spacecraft_view_area import SpacecraftViewArea
 from .areas.illuminated_area import IlluminatedArea
+from .areas.recipient_area import RecipientArea
 
 
 class Spacecraft:
@@ -41,4 +42,12 @@ class Spacecraft:
         return IlluminatedArea(
             t=t,
             y_s=self.y_s
+        )
+
+    def recipient_area(self, point, t) -> RecipientArea:
+        return RecipientArea(
+            phi_=point.phi_,
+            lambda_=point.lambda_,
+            R=self.orbit.planet.R,
+            H=self.position(t).H,
         )

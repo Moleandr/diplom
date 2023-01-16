@@ -1,6 +1,6 @@
 <div class="ui grid">
     <div class="five wide column" id="periodicity_settings">
-        <select class="ui dropdown fluid" id="graph_type">
+        <select class="ui dropdown fluid" id="periodicity_graph_type">
             <option value="Mean Periodicity indicator">Средняя периодичность</option>
             <option value="Max Periodicity indicator">Максимальная периодичность</option>
             <option value="Min Periodicity indicator">Минимальная периодичность</option>
@@ -19,11 +19,11 @@
 
 <script>
     $("#show_periodicity_graph").on('click', function () {
-        let graph_type = $('#graph_type').val()
-        if (graph_type === 'Mean Periodicity indicator') periodicityIndicatorBarGraph('mean_periodicity_indicator')
-        if (graph_type === 'Max Periodicity indicator') periodicityIndicatorBarGraph('max_periodicity_indicator')
-        if (graph_type === 'Min Periodicity indicator') periodicityIndicatorBarGraph('min_periodicity_indicator')
-        if (graph_type === 'Std Periodicity indicator') periodicityIndicatorBarGraph('std_periodicity_indicator')
-        if (graph_type === 'Hits count') periodicityIndicatorBarGraph('count')
+        let graph_type = $('#periodicity_graph_type').val()
+        if (graph_type === 'Mean Periodicity indicator') IndicatorBarGraph('periodicity', 'mean_indicator')
+        if (graph_type === 'Max Periodicity indicator') IndicatorBarGraph('periodicity', 'max_indicator')
+        if (graph_type === 'Min Periodicity indicator') IndicatorBarGraph('periodicity', 'min_indicator')
+        if (graph_type === 'Std Periodicity indicator') IndicatorBarGraph('periodicity', 'std_indicator')
+        if (graph_type === 'Hits count') IndicatorBarGraph('periodicity', 'count')
     })
 </script>
