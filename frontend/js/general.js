@@ -4,7 +4,7 @@ function generateTab(name){
 
 function generateTabContent(name, fields) {
     fields.unshift(
-        {'text': 'Name', 'name': 'name', 'value': name, 'disabled': true, 'type': 'text'},
+        {'text': 'Имя', 'name': 'name', 'value': name, 'disabled': true, 'type': 'text'},
     )
     return `
     <div class="ui tab segment" data-tab="${name}" id="${name}">
