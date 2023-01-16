@@ -1,23 +1,25 @@
-from typing import List
 from .orbit import Orbit
-from .point import Point
 from .position import OrbitPosition
 from .areas.spacecraft_view_area import SpacecraftViewArea
+from .areas.illuminated_area import IlluminatedArea
 
 
 class Spacecraft:
     def __init__(self,
                  gamma: float,
                  orbit: Orbit,
-                 t_per: float = 0):
+                 t_per: float = 0,
+                 y_s: float = 0):
         """
         :param gamma: Угол поворота относительно надира
         :param orbit: Орбита КА
         :param t_per: Время прохождения перигея
+        :param y_s: минимальная высота Солнца над горизонтом, град
         """
         self.gamma = gamma
         self.orbit = orbit
         self.t_per = t_per
+        self.y_s = y_s
 
     def position(self, t) -> OrbitPosition:
         return OrbitPosition(
@@ -33,4 +35,10 @@ class Spacecraft:
             R=self.orbit.planet.R,
             H=self.position(t).H,
             gamma=self.gamma
+        )
+
+    def illuminated_area(self, t) -> IlluminatedArea:
+        return IlluminatedArea(
+            t=t,
+            y_s=self.y_s
         )

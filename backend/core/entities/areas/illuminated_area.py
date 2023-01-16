@@ -7,14 +7,15 @@ from numpy import arcsin, sin, cos, pi, deg2rad, arctan, clip
 class IlluminatedArea(SurfaceArea):
     def __init__(self,
                  t: float,
+                 y_s: float = 0,
                  omega: float = 0.0000729211):
         """
         :param t: Время от начала расчёта
         :param omega: Угловая скорость вращения планеты
-        (При котором угол весеннего равноденствия совпадает с направлением на Солнце)
-        Прим. Для Земли
+        :param y_s: высота Солнца над горизонтом, град
         """
         self.t = t
+        self.y_s = y_s
         self.omega = omega
 
     @property
@@ -67,4 +68,4 @@ class IlluminatedArea(SurfaceArea):
 
     @property
     def alpha(self) -> float:
-        return pi / 2
+        return pi / 2 - self.y_s

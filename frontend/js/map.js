@@ -20,72 +20,59 @@ function generateEmptyMap() {
 
 function generateMap(data) {
     let graphData = []
-    // generate point on Earth
-    graphData = graphData.concat(data['objects'].map(function (el) {
-        return {
-            type:'scattergeo',
-            mode: 'markers',
-            lon: [el[2]['value']],
-            lat: [el[1]['value']],
-            name: el[0]['value'],
-            line: {
-                width: 2,
-            }
-        }
-    }))
-    // generate starting point for satellites
-    graphData = graphData.concat(data['satellites'].map(function (el) {
-        return {
-            type:'scattergeo',
-            mode: 'markers',
-            lon: [0],
-            lat: [0],
-            name: el[0]['value'],
-            line: {
-                width: 2,
-            }
-        }
-    }))
-    // generate circle for view area
-    graphData = graphData.concat(data['satellites'].map(function (el) {
-        return {
-            type:'scattergeo',
-            mode: 'lines',
-            lon: [0],
-            lat: [0],
-            name: `${el[0]['value']}-зона-обзора`,
-            line: {
-                width: 2,
-            }
-        }
-    }))
-    // generate circle for illuminated area
-    graphData.push(
-        {
-            type:'scattergeo',
-            mode: 'lines',
-            lon: [0],
-            lat: [0],
-            name: `Область светового пятна`,
-            line: {
-                width: 2,
-            }
-        }
-    )
-    // generate center of illuminated area
-    graphData.push(
-        {
-            type:'scattergeo',
-            mode: 'markers',
-            lon: [0],
-            lat: [0],
-            name: `Центр области светового пятна`,
-            line: {
-                width: 2,
-            }
-        }
-    )
 
+    // generate objects
+    for (let i=0; i < data['objects'].length; i++){
+        graphData.push({
+            type:'scattergeo',
+            mode: 'markers',
+            lon: [data['objects'][i][2]['value']],
+            lat: [data['objects'][i][1]['value']],
+            name: data['objects'][i][0]['value'],
+            line: {
+                width: 2,
+            }
+        })
+    }
+
+    // generate satellites
+    for (let i=0; i < data['satellites'].length; i++){
+        // satellites point
+        graphData.push({
+            type:'scattergeo',
+            mode: 'markers',
+            lon: [0],
+            lat: [0],
+            name: data['satellites'][i][0]['value'],
+            line: {
+                width: 2,
+            }
+        })
+
+        // satellites view area
+        graphData.push({
+            type:'scattergeo',
+            mode: 'lines',
+            lon: [0],
+            lat: [0],
+            name: `Зона обзора(${data['satellites'][i][0]['value']})`,
+            line: {
+                width: 2,
+            }
+        })
+
+        // satellites illuminated area
+        graphData.push({
+            type:'scattergeo',
+            mode: 'lines',
+            lon: [0],
+            lat: [0],
+            name: `Световое пятно(${data['satellites'][i][0]['value']})`,
+            line: {
+                width: 2,
+            }
+        })
+    }
 
 
     let layout = {

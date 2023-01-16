@@ -17,6 +17,7 @@ class SatelliteData(BaseModel):
     ascendingNodeLongitude: float = 0
     initialPerigeeArgument: float = 0
     opticalRotationAngle: float = 0
+    sunMinimumHeightAngle: float = 0
 
 
 class ObjectData(BaseModel):

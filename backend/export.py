@@ -43,6 +43,7 @@ def satellite_factory(data: SatelliteData) -> Satellite:
         name=data.name,
         cluster=data.cluster,
         gamma=deg2rad(data.opticalRotationAngle),
+        y_s=deg2rad(data.sunMinimumHeightAngle),
         orbit=orbit
     )
     return spacecraft
@@ -100,7 +101,7 @@ def simulate(data):
                 tracker.push(
                     key=(satellite.name, object_.name),
                     condition=(satellite.view_area(t).check_collision(object_)
-                               and IlluminatedArea(t).check_collision(object_)),
+                               and satellite.illuminated_area(t).check_collision(object_)),
                     timestamps=t
                 )
 
@@ -148,23 +149,32 @@ def map_simulation(data, t):
     objects = prepare_objects(data)
 
     satellites_points = [satellite.position(t).point.to_deg() for satellite in satellites]
-    satellites_areas = [satellite.view_area(t).get_border(0.1) for satellite in satellites]
-    illuminated_area = IlluminatedArea(t)
-    illuminated_border = illuminated_area.get_border(0.1)
+    satellites_view_areas = [satellite.view_area(t).get_border(0.1) for satellite in satellites]
+    satellites_illuminated_areas = \
+        [satellite.illuminated_area(t).get_border(0.1) for satellite in satellites]
 
     data = []
-    data += [{'lon': [el.to_deg().lambda_], 'lat': [el.to_deg().phi_]} for el in objects]
-    data += [{'lon': [point.lambda_], 'lat': [point.phi_]} for point in satellites_points]
-    data += [{
-        'lon': [point.to_deg().lambda_ for point in area],
-        'lat': [point.to_deg().phi_ for point in area]
-    } for area in satellites_areas]
-    data += [{
-        'lon': [point.to_deg().lambda_ for point in illuminated_border],
-        'lat': [point.to_deg().phi_ for point in illuminated_border]
-    }]
-    data += [{
-        'lon': [illuminated_area.central_point.to_deg().lambda_],
-        'lat': [illuminated_area.central_point.to_deg().phi_]
-    }]
+
+    # observation objects
+    for i in range(len(objects)):
+        data.append({
+            'lon': [objects[i].to_deg().lambda_],
+            'lat': [objects[i].to_deg().phi_]
+        })
+
+    # satellites
+    for i in range(len(satellites_points)):
+        data.append({
+            'lon': [satellites_points[i].lambda_],
+            'lat': [satellites_points[i].phi_]
+        })
+        data.append({
+            'lon': [point.to_deg().lambda_ for point in satellites_view_areas[i]],
+            'lat': [point.to_deg().phi_ for point in satellites_view_areas[i]]
+        })
+        data.append({
+            'lon': [point.to_deg().lambda_ for point in satellites_illuminated_areas[i]],
+            'lat': [point.to_deg().phi_ for point in satellites_illuminated_areas[i]]
+        })
+
     return data
