@@ -3,6 +3,7 @@
         {% import 'macros/tabs.html' as macros %}
         {{ macros.tabs(
             name="satellite",
+            default="спутник",
             fields=[
                 {'text': 'Cluster', 'name': 'cluster', 'type': 'text'},
                 {'text': 'Perigee Altitude, km', 'name': 'perigeeAltitude', 'type': 'number', 'value': '800'},

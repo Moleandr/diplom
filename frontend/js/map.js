@@ -53,7 +53,7 @@ function generateMap(data) {
             mode: 'lines',
             lon: [0],
             lat: [0],
-            name: `${el[0]['value']}-view-area`,
+            name: `${el[0]['value']}-зона-обзора`,
             line: {
                 width: 2,
             }
@@ -66,7 +66,7 @@ function generateMap(data) {
             mode: 'lines',
             lon: [0],
             lat: [0],
-            name: `illuminated-area`,
+            name: `Область светового пятна`,
             line: {
                 width: 2,
             }
@@ -79,7 +79,7 @@ function generateMap(data) {
             mode: 'markers',
             lon: [0],
             lat: [0],
-            name: `illuminated-center`,
+            name: `Центр области светового пятна`,
             line: {
                 width: 2,
             }

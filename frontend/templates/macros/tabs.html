@@ -1,7 +1,7 @@
-{% macro tabs(name, fields) -%}
+{% macro tabs(name, default, fields) -%}
     <div class="ui grid">
         <div class="four wide column">
-            <button class="green fluid mini ui button" id="{{name}}-add">New</button>
+            <button class="green fluid mini ui button" id="{{name}}-add">Новый</button>
             <div class="ui vertical fluid tabular menu" id="{{name}}-tab-bar">
             </div>
         </div>
@@ -13,12 +13,12 @@
         <div class="ui centered grid">
             <div class="center aligned eight wide column">
                 <div class="ui fluid input">
-                  <input type="text" id={{name}}-name value="{{name}}-">
+                  <input type="text" id={{name}}-name value="{{default}}-">
                 </div>
             </div>
             <div class="column">
                 <div class="actions">
-                    <button class="ui approve green button" id="{{name}}-agree-adding">Add</button>
+                    <button class="ui approve green button" id="{{name}}-agree-adding">Добавить</button>
                 </div>
             </div>
         </div>
