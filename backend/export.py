@@ -149,7 +149,8 @@ def map_simulation(data, t):
 
     satellites_points = [satellite.position(t).point.to_deg() for satellite in satellites]
     satellites_areas = [satellite.view_area(t).get_border(0.1) for satellite in satellites]
-    illuminated_area = IlluminatedArea(t).get_border(0.1)
+    illuminated_area = IlluminatedArea(t)
+    illuminated_border = illuminated_area.get_border(0.1)
 
     data = []
     data += [{'lon': [el.to_deg().lambda_], 'lat': [el.to_deg().phi_]} for el in objects]
@@ -159,7 +160,11 @@ def map_simulation(data, t):
         'lat': [point.to_deg().phi_ for point in area]
     } for area in satellites_areas]
     data += [{
-        'lon': [point.to_deg().lambda_ for point in illuminated_area],
-        'lat': [point.to_deg().phi_ for point in illuminated_area]
+        'lon': [point.to_deg().lambda_ for point in illuminated_border],
+        'lat': [point.to_deg().phi_ for point in illuminated_border]
+    }]
+    data += [{
+        'lon': [illuminated_area.central_point.to_deg().lambda_],
+        'lat': [illuminated_area.central_point.to_deg().phi_]
     }]
     return data

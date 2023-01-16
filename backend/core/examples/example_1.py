@@ -1,7 +1,5 @@
-from numpy import deg2rad
+from numpy import deg2rad, rad2deg
 from backend.core import Spacecraft, Orbit, Point, IlluminatedArea
-from backend.core import vizualization
-
 
 class Collisions:
     def __init__(self):
@@ -17,13 +15,13 @@ class Collisions:
 
 
 orbit = Orbit(
-    h_p=800,
-    h_a=800,
-    i=deg2rad(80)
+    h_p=500,
+    h_a=500,
+    i=deg2rad(97.4)
 )
 
 spacecraft = Spacecraft(
-    gamma=deg2rad(60),
+    gamma=deg2rad(45),
     orbit=orbit
 )
 
@@ -31,16 +29,38 @@ point_on = Point(
     phi_=60,
     lambda_=40
 ).to_rad()
+t = 1057555
+print(rad2deg(spacecraft.orbit.omega(t)))
+print(rad2deg(spacecraft.position(t).Theta))
+print(rad2deg(spacecraft.position(t).phi_))
+print(rad2deg(spacecraft.position(t).lambda_))
 
-points = []
-view_areas = []
-illuminated_area = []
-collisions = Collisions()
+-42.9729735398796
+-42.975425635374
 
-for t in range(0, 10000, 100):
-    points.append(spacecraft.position(t).point)
-    view_areas.append(spacecraft.view_area(t).get_border())
-    illuminated_area.append(IlluminatedArea(t).get_border(step=0.01))
+40.6430903883229
+40.643090388322925
+
+-2.31289900251157
+-2.3104673635439528
+
+-86.4153113699304
+-86.41562770369347
+
+# Ошибка вероятно не в округлении
+
+
+
+
+# points = []
+# view_areas = []
+# illuminated_area = []
+# collisions = Collisions()
+#
+# for t in range(0, 10000, 100):
+#     points.append(spacecraft.position(t).point)
+#     view_areas.append(spacecraft.view_area(t).get_border())
+#     illuminated_area.append(IlluminatedArea(t).get_border(step=0.01))
 
 # result = []
 # for phi_on in range(0, 90, 5):
@@ -67,46 +87,46 @@ for t in range(0, 10000, 100):
 # )
 # plt.show()
 
-points = []
-view_areas = []
-illuminated_area = []
-
-for t in range(0, 10000, 100):
-    points.append(spacecraft.position(t).point)
-    view_areas.append(spacecraft.view_area(t))
-    illuminated_area.append(IlluminatedArea(t))
-
-
-with vizualization.map_graph() as ax:
-    ax.plot(
-        [point.to_deg().lambda_ for point in points],
-        [point.to_deg().phi_ for point in points]
-    )
-
-    ax.scatter(
-        point_on.to_deg().lambda_,
-        point_on.to_deg().phi_,
-        color='green'
-    )
-
-    for area in view_areas[::5]:
-        # if area.check_collision(point_on):
-        ax.plot(
-            [point.to_deg().lambda_ for point in area.get_border()],
-            [point.to_deg().phi_ for point in area.get_border()],
-            color='blue' if area.check_collision(point_on) else "black"
-        )
-        ax.scatter(
-            area.central_point.to_deg().lambda_,
-            area.central_point.to_deg().phi_,
-            color='red'
-        )
-
-    for area in illuminated_area[::10]:
-        # if area.check_collision(point_on):
-        ax.plot(
-            [point.to_deg().lambda_ for point in area.get_border(step=0.01)],
-            [point.to_deg().phi_ for point in area.get_border(step=0.01)],
-            color='green' if area.check_collision(point_on) else "red"
-        )
+# points = []
+# view_areas = []
+# illuminated_area = []
+#
+# for t in range(0, 10000, 100):
+#     points.append(spacecraft.position(t).point)
+#     view_areas.append(spacecraft.view_area(t))
+#     illuminated_area.append(IlluminatedArea(t))
+#
+#
+# with vizualization.map_graph() as ax:
+#     ax.plot(
+#         [point.to_deg().lambda_ for point in points],
+#         [point.to_deg().phi_ for point in points]
+#     )
+#
+#     ax.scatter(
+#         point_on.to_deg().lambda_,
+#         point_on.to_deg().phi_,
+#         color='green'
+#     )
+#
+#     for area in view_areas[::5]:
+#         # if area.check_collision(point_on):
+#         ax.plot(
+#             [point.to_deg().lambda_ for point in area.get_border()],
+#             [point.to_deg().phi_ for point in area.get_border()],
+#             color='blue' if area.check_collision(point_on) else "black"
+#         )
+#         ax.scatter(
+#             area.central_point.to_deg().lambda_,
+#             area.central_point.to_deg().phi_,
+#             color='red'
+#         )
+#
+#     for area in illuminated_area[::10]:
+#         # if area.check_collision(point_on):
+#         ax.plot(
+#             [point.to_deg().lambda_ for point in area.get_border(step=0.01)],
+#             [point.to_deg().phi_ for point in area.get_border(step=0.01)],
+#             color='green' if area.check_collision(point_on) else "red"
+#         )
 

@@ -72,7 +72,21 @@ function generateMap(data) {
             }
         }
     )
-    console.log(data.length)
+    // generate center of illuminated area
+    graphData.push(
+        {
+            type:'scattergeo',
+            mode: 'markers',
+            lon: [0],
+            lat: [0],
+            name: `illuminated-center`,
+            line: {
+                width: 2,
+            }
+        }
+    )
+
+
 
     let layout = {
         geo:{
@@ -92,7 +106,7 @@ function generateMap(data) {
 }
 
 async function updateMap (data, t) {
-    Plotly.animate('map_graph', {
+    await Plotly.animate('map_graph', {
             data: await eel.map_simulation(data, t)()
         },
         {
@@ -104,4 +118,6 @@ async function updateMap (data, t) {
                 redraw: true
             }
       });
+    $('#current_time').val(t)
 }
+
