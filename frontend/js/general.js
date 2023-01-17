@@ -103,7 +103,7 @@ async function hitsTimestampGraph(name) {
             zeroline: false,
             showline: false,
         },
-        height: 300,
+        height: 150,
     };
     Plotly.newPlot(`${name}_hits_graph`, data, layout);
 }

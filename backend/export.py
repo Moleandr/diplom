@@ -178,7 +178,8 @@ def simulate(data):
         observations = reduce(lambda a, b: a + b, observations)
         connections = intersections.timestamps
 
-        indicators = [[t_c for t_c in connections if t_c > t_o][0] - t_o for t_o in observations]
+        indicators = [[t_c for t_c in connections if t_c >= t_o][0] - t_o for t_o in observations
+                      if t_o <= max(connections)]
         efficiency_tracker.intersections_store[key].indicators = indicators
 
     for key, intersections in efficiency_tracker.intersections_store.items():
