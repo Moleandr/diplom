@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Dict, Union
+from typing import Dict, Union, Optional
 
 import numpy as np
 
@@ -8,6 +8,7 @@ import numpy as np
 class Intersections:
     timestamps: list = field(default_factory=list)
     flag: bool = False
+    _indicators: Optional[list] = None
 
     @property
     def count(self):
@@ -15,7 +16,13 @@ class Intersections:
 
     @property
     def indicators(self):
+        if self._indicators:
+            return self._indicators
         return [self.timestamps[i+1] - self.timestamps[i] for i in range(len(self.timestamps) - 1)]
+
+    @indicators.setter
+    def indicators(self, value):
+        self._indicators = value
 
     @property
     def mean_indicator(self):

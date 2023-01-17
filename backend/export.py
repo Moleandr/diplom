@@ -1,4 +1,5 @@
 from typing import List
+from functools import reduce
 
 import eel
 from numpy import deg2rad
@@ -169,6 +170,16 @@ def simulate(data):
             'min_indicator': intersections.min_indicator,
             'std_indicator': intersections.std_indicator,
         }
+
+    # right calculate efficiency
+    for key, intersections in efficiency_tracker.intersections_store.items():
+        observations = [v.timestamps for k, v in periodicity_tracker.intersections_store.items()
+                        if k[0] == key[0]]
+        observations = reduce(lambda a, b: a + b, observations)
+        connections = intersections.timestamps
+
+        indicators = [[t_c for t_c in connections if t_c > t_o][0] - t_o for t_o in observations]
+        efficiency_tracker.intersections_store[key].indicators = indicators
 
     for key, intersections in efficiency_tracker.intersections_store.items():
         result['efficiency'][key[0]] = result['efficiency'][key[0]] \
