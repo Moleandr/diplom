@@ -6,7 +6,7 @@ from numpy import deg2rad
 
 from .models import data_factory
 from .models import SatelliteData, ObjectData, RecipientData
-from .services.intersection import IntersectionTracker
+from .services.intersection import IntersectionTracker, Intersections
 from .core import Spacecraft, Orbit, Point, RecipientArea
 
 
@@ -115,8 +115,8 @@ def simulate(data):
     end = int(data['end_time'])
     step = int(data['step'])
 
-    periodicity_tracker = IntersectionTracker()
-    efficiency_tracker = IntersectionTracker()
+    observation_tracker = IntersectionTracker()
+    connection_tracker = IntersectionTracker()
 
     # simulate
     for t in range(start, end, step):
@@ -124,7 +124,7 @@ def simulate(data):
 
         for satellite in satellites:
             for object_ in objects:
-                periodicity_tracker.push(
+                observation_tracker.push(
                     key=(satellite.name, object_.name),
                     condition=(satellite.view_area(t).check_collision(object_)
                                and satellite.illuminated_area(t).check_collision(object_)),
@@ -133,7 +133,7 @@ def simulate(data):
 
         for satellite in satellites:
             for recipient in recipients:
-                efficiency_tracker.push(
+                connection_tracker.push(
                     key=(satellite.name, recipient.name),
                     condition=(satellite.recipient_area(recipient, t).check_collision(
                         satellite.position(t).point
@@ -141,16 +141,34 @@ def simulate(data):
                     timestamps=t
                 )
 
+    efficiency = {}
+    for o_key, o_intersections in observation_tracker.intersections_store.items():
+        connections = []
+        for c_key, c_intersections in connection_tracker.intersections_store.items():
+            if c_key[0] == o_key[0]:
+                connections += c_intersections.timestamps
+        connections.sort()
+
+        efficiency[o_key] = Intersections()
+        efficiency[o_key].timestamps = [
+            [c_timestamps for c_timestamps in connections if c_timestamps >= o_timestamps][0]
+            for o_timestamps in o_intersections.timestamps if o_timestamps <= max(connections)
+        ]
+        efficiency[o_key].indicators = [
+            [c_timestamps - o_timestamps for c_timestamps in connections if c_timestamps >= o_timestamps][0]
+            for o_timestamps in o_intersections.timestamps if o_timestamps <= max(connections)
+        ]
+
     # add clusters
     for satellite in satellites:
         for object_ in objects:
             if satellite.cluster:
-                if periodicity_tracker.intersections_store.get((satellite.cluster, object_.name)):
-                    periodicity_tracker.intersections_store[(satellite.cluster, object_.name)] += \
-                        periodicity_tracker.intersections_store[(satellite.name, object_.name)]
+                if observation_tracker.intersections_store.get((satellite.cluster, object_.name)):
+                    observation_tracker.intersections_store[(satellite.cluster, object_.name)] += \
+                        observation_tracker.intersections_store[(satellite.name, object_.name)]
                 else:
-                    periodicity_tracker.intersections_store[(satellite.cluster, object_.name)] = \
-                        periodicity_tracker.intersections_store[(satellite.name, object_.name)]
+                    observation_tracker.intersections_store[(satellite.cluster, object_.name)] = \
+                        observation_tracker.intersections_store[(satellite.name, object_.name)]
 
     # serialize result
     result = {
@@ -158,7 +176,7 @@ def simulate(data):
         'efficiency': {}
     }
 
-    for key, intersections in periodicity_tracker.intersections_store.items():
+    for key, intersections in observation_tracker.intersections_store.items():
         result['periodicity'][key[0]] = result['periodicity'][key[0]] \
             if result['periodicity'].get(key[0]) else {}
         result['periodicity'][key[0]][key[1]] = {
@@ -171,18 +189,7 @@ def simulate(data):
             'std_indicator': intersections.std_indicator,
         }
 
-    # right calculate efficiency
-    for key, intersections in efficiency_tracker.intersections_store.items():
-        observations = [v.timestamps for k, v in periodicity_tracker.intersections_store.items()
-                        if k[0] == key[0]]
-        observations = reduce(lambda a, b: a + b, observations)
-        connections = intersections.timestamps
-
-        indicators = [[t_c for t_c in connections if t_c >= t_o][0] - t_o for t_o in observations
-                      if t_o <= max(connections)]
-        efficiency_tracker.intersections_store[key].indicators = indicators
-
-    for key, intersections in efficiency_tracker.intersections_store.items():
+    for key, intersections in efficiency.items():
         result['efficiency'][key[0]] = result['efficiency'][key[0]] \
             if result['efficiency'].get(key[0]) else {}
         result['efficiency'][key[0]][key[1]] = {
@@ -198,8 +205,8 @@ def simulate(data):
     global last_simulation
     last_simulation = result
 
-    set_settings('periodicity', periodicity_tracker.intersections_store.keys())
-    set_settings('efficiency', efficiency_tracker.intersections_store.keys())
+    set_settings('periodicity', observation_tracker.intersections_store.keys())
+    set_settings('efficiency', efficiency.keys())
 
     return result
 

@@ -7,6 +7,7 @@ import numpy as np
 @dataclass
 class Intersections:
     timestamps: list = field(default_factory=list)
+    exit_timestamps: list = field(default_factory=list)
     flag: bool = False
     _indicators: Optional[list] = None
 
@@ -71,5 +72,8 @@ class IntersectionTracker:
 
         if self.intersections_store[key].flag is False and condition is True:
             self.intersections_store[key].timestamps.append(timestamps)
+
+        if self.intersections_store[key].flag is True and condition is False:
+            self.intersections_store[key].exit_timestamps.append(timestamps)
 
         self.intersections_store[key].flag = condition

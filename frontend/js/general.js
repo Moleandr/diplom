@@ -86,7 +86,6 @@ async function hitsTimestampGraph(name) {
     let values = await eel.get_last_simulate()()
     let data = []
     keys.forEach(function(key) {
-        console.log(values[name][key[0]][key[1]]['timestamps'])
         data.push({
             'x': values[name][key[0]][key[1]]['timestamps'],
             'y': values[name][key[0]][key[1]]['timestamps'].map(() => 0),
