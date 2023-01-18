@@ -9,7 +9,6 @@ from .models import SatelliteData, ObjectData, RecipientData
 from .services.intersection import IntersectionTracker, Intersections
 from .core import Spacecraft, Orbit, Point, RecipientArea
 
-
 last_simulation = None
 
 
@@ -146,19 +145,34 @@ def simulate(data):
         connections = []
         for c_key, c_intersections in connection_tracker.intersections_store.items():
             if c_key[0] == o_key[0]:
-                connections += c_intersections.timestamps
-        connections.sort()
+                for i in range(len(c_intersections.timestamps)):
+                    connections.append({
+                        'start': c_intersections.timestamps[i],
+                        'stop': c_intersections.exit_timestamps[i]
+                        if len(c_intersections.exit_timestamps) > i else 999999999999999999999
+                    })
 
+        connections.sort(key=lambda x: x['start'])
         efficiency[o_key] = Intersections()
-        efficiency[o_key].timestamps = [
-            [c_timestamps for c_timestamps in connections if c_timestamps >= o_timestamps][0]
-            for o_timestamps in o_intersections.timestamps if o_timestamps <= max(connections)
-        ]
-        efficiency[o_key].indicators = [
-            [c_timestamps - o_timestamps for c_timestamps in connections if c_timestamps >= o_timestamps][0]
-            for o_timestamps in o_intersections.timestamps if o_timestamps <= max(connections)
-        ]
-
+        efficiency[o_key]._indicators = []
+        for observation in o_intersections.timestamps:
+            for connection in connections:
+                if connection['start'] < observation < connection['stop']:
+                    efficiency[o_key].timestamps.append(observation)
+                    efficiency[o_key]._indicators.append(0)
+                    break
+            else:
+                if observation < max([connection['start'] for connection in connections]):
+                    efficiency[o_key].timestamps.append(
+                        [connection['start'] for connection in connections
+                         if connection['start'] >= observation][0]
+                    )
+                    efficiency[o_key]._indicators.append(
+                        [connection['start'] - observation for connection in connections
+                         if connection['start'] >= observation][0]
+                    )
+        print(efficiency[o_key].timestamps)
+        print(efficiency[o_key].indicators)
     # add clusters
     for satellite in satellites:
         for object_ in objects:
