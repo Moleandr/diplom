@@ -75,7 +75,7 @@ async function IndicatorBarGraph(name, metric) {
     keys.forEach(function(key) {
         data[0]['x'].push(`${key[0]}|${key[1]}`)
         data[0]['y'].push(values[name][key[0]][key[1]][metric])
-        data[0]['text'].push(values[name][key[0]][key[1]][metric])
+        data[0]['text'].push(Math.round(values[name][key[0]][key[1]][metric]))
     });
     Plotly.newPlot(`${name}_graph`, data);
 }
