@@ -20,10 +20,10 @@
 <script>
     $("#show_periodicity_graph").on('click', function () {
         let graph_type = $('#periodicity_graph_type').val()
-        if (graph_type === 'Mean Periodicity indicator') IndicatorBarGraph('periodicity', 'mean_indicator')
-        if (graph_type === 'Max Periodicity indicator') IndicatorBarGraph('periodicity', 'max_indicator')
-        if (graph_type === 'Min Periodicity indicator') IndicatorBarGraph('periodicity', 'min_indicator')
-        if (graph_type === 'Std Periodicity indicator') IndicatorBarGraph('periodicity', 'std_indicator')
-        if (graph_type === 'Hits count') IndicatorBarGraph('periodicity', 'count')
+        if (graph_type === 'Mean Periodicity indicator') IndicatorBarGraph('periodicity', 'mean_indicator', 'Средняя периодичность, ч.')
+        if (graph_type === 'Max Periodicity indicator') IndicatorBarGraph('periodicity', 'max_indicator', 'Максимальная периодичность, ч.')
+        if (graph_type === 'Min Periodicity indicator') IndicatorBarGraph('periodicity', 'min_indicator', 'Минимальная периодичность, ч.')
+        if (graph_type === 'Std Periodicity indicator') IndicatorBarGraph('periodicity', 'std_indicator', 'Среднеквадратичное отклонение периодичности, ч.')
+        if (graph_type === 'Hits count') IndicatorBarGraph('periodicity', 'count', 'Количество наблюдений, шт.')
     })
 </script>

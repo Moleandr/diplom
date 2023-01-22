@@ -103,6 +103,11 @@ def prepare_recipient(data) -> List[Recipient]:
     return recipients
 
 
+def to_hours(value):
+    if value:
+        return value/3600
+
+
 @eel.expose
 def simulate(data):
     # prepare data
@@ -197,10 +202,10 @@ def simulate(data):
             'timestamps': intersections.timestamps,
             'indicators': intersections.indicators,
             'count': intersections.count,
-            'mean_indicator': intersections.mean_indicator,
-            'max_indicator': intersections.max_indicator,
-            'min_indicator': intersections.min_indicator,
-            'std_indicator': intersections.std_indicator,
+            'mean_indicator': to_hours(intersections.mean_indicator),
+            'max_indicator': to_hours(intersections.max_indicator),
+            'min_indicator': to_hours(intersections.min_indicator),
+            'std_indicator': to_hours(intersections.std_indicator),
         }
 
     for key, intersections in efficiency.items():
@@ -210,10 +215,10 @@ def simulate(data):
             'timestamps': intersections.timestamps,
             'indicators': intersections.indicators,
             'count': intersections.count,
-            'mean_indicator': intersections.mean_indicator,
-            'max_indicator': intersections.max_indicator,
-            'min_indicator': intersections.min_indicator,
-            'std_indicator': intersections.std_indicator,
+            'mean_indicator': to_hours(intersections.mean_indicator),
+            'max_indicator': to_hours(intersections.max_indicator),
+            'min_indicator': to_hours(intersections.min_indicator),
+            'std_indicator': to_hours(intersections.std_indicator),
         }
 
     global last_simulation

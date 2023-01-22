@@ -62,7 +62,7 @@ function setSettings (name, settings) {
     $('.ui.checkbox').checkbox()
 }
 
-async function IndicatorBarGraph(name, metric) {
+async function IndicatorBarGraph(name, metric, title_y) {
     let keys = $(`#${name}_settings .checkbox.checked input`).toArray()
         .map((el) => el.name.split("|"))
     let values = await eel.get_last_simulate()()
@@ -75,9 +75,16 @@ async function IndicatorBarGraph(name, metric) {
     keys.forEach(function(key) {
         data[0]['x'].push(`${key[0]}|${key[1]}`)
         data[0]['y'].push(values[name][key[0]][key[1]][metric])
-        data[0]['text'].push(Math.round(values[name][key[0]][key[1]][metric]))
+        data[0]['text'].push(
+            values[name][key[0]][key[1]][metric] !== null ? values[name][key[0]][key[1]][metric].toFixed(2) : null
+        )
     });
-    Plotly.newPlot(`${name}_graph`, data);
+    let layout = {
+        yaxis: {
+            title: title_y
+        }
+    }
+    Plotly.newPlot(`${name}_graph`, data, layout);
 }
 
 async function hitsTimestampGraph(name) {

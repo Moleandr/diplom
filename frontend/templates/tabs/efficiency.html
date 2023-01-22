@@ -20,10 +20,10 @@
 <script>
     $("#show_efficiency_graph").on('click', function () {
         let graph_type = $('#efficiency_graph_type').val()
-        if (graph_type === 'Mean Efficiency indicator') IndicatorBarGraph('efficiency', 'mean_indicator')
-        if (graph_type === 'Max Efficiency indicator') IndicatorBarGraph('efficiency', 'max_indicator')
-        if (graph_type === 'Min Efficiency indicator') IndicatorBarGraph('efficiency', 'min_indicator')
-        if (graph_type === 'Std Efficiency indicator') IndicatorBarGraph('efficiency', 'std_indicator')
-        if (graph_type === 'Hits count') IndicatorBarGraph('efficiency', 'count')
+        if (graph_type === 'Mean Efficiency indicator') IndicatorBarGraph('efficiency', 'mean_indicator', 'Средняя оперативность, ч.')
+        if (graph_type === 'Max Efficiency indicator') IndicatorBarGraph('efficiency', 'max_indicator', 'Максимальная оперативность, ч.')
+        if (graph_type === 'Min Efficiency indicator') IndicatorBarGraph('efficiency', 'min_indicator', 'Минимальная оперативность, ч.')
+        if (graph_type === 'Std Efficiency indicator') IndicatorBarGraph('efficiency', 'std_indicator', 'Среднеквадратичное отклонение оперативности, ч.')
+        if (graph_type === 'Hits count') IndicatorBarGraph('efficiency', 'count', 'Количество сеансов связи, шт.')
     })
 </script>
