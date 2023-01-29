@@ -79,10 +79,20 @@ async function IndicatorBarGraph(name, metric, title_y) {
             values[name][key[0]][key[1]][metric] !== null ? values[name][key[0]][key[1]][metric].toFixed(2) : null
         )
     });
+
+    let aver = 0
+    let count = 0
+    keys.forEach(function(key) {
+        if (values[name][key[0]][key[1]][metric] !== null) {
+            aver += Number(values[name][key[0]][key[1]][metric].toFixed(2))
+            count += 1
+        }
+    });
     let layout = {
         yaxis: {
             title: title_y
-        }
+        },
+        title: count !== 0  ?`Среднее значение - ${aver/count}`: ''
     }
     Plotly.newPlot(`${name}_graph`, data, layout);
 }
